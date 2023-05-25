@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "nexus-frame",
+  "version": "${version}",
+  "name": "NexusFrame",
+  "description": "A server-side libary adding custom Multiblock api with a custom preview!",
+  "authors": [
+    "Mayaqq"
+  ],
+  "contact": {
+    "website": "https://github.com/MayaqqDev/NexusFrame",
+    "repo": "https://github.com/MayaqqDev/NexusFrame"
+  },
+  "license": "LGPL-3.0",
+  "icon": "assets/nexus-frame/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "dev.mayaqq.nexusframe.NexusFrame"
+    ]
+  },
+  "mixins": [
+    "nexus-frame.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

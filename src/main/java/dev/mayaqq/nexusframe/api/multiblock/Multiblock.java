@@ -23,6 +23,7 @@ public class Multiblock  {
     private char[][][] pattern;
     private final HashMap<Character, Predicate<BlockState>> predicates;
     private final boolean shouldPreview;
+    private final boolean shouldPlace;
     private final int width;
     private final int height;
     private final int length;
@@ -32,13 +33,14 @@ public class Multiblock  {
     public static HashMap<BlockPos, HolderAttachment> attachments = new HashMap<>();
     public static HashMap<BlockPos, BlockDisplayElement> elements = new HashMap<>();
 
-    public Multiblock(char[][][] pattern, HashMap<Character, Predicate<BlockState>> predicates, boolean shouldPreview) {
+    public Multiblock(char[][][] pattern, HashMap<Character, Predicate<BlockState>> predicates, boolean shouldPreview, boolean shouldPlace) {
         this.pattern = pattern;
         this.predicates = predicates;
         this.width = pattern[0].length;
         this.height = pattern.length;
         this.length = pattern[0][0].length;
         this.shouldPreview = shouldPreview;
+        this.shouldPlace = shouldPlace;
         this.previewing = false;
     }
 
@@ -72,6 +74,9 @@ public class Multiblock  {
                     BlockPos blockPos = corner.add(j, i, k);
                     Predicate<BlockState> predicate = predicates.get(pattern[i][j][k]);
                     boolean isRightBlock = predicate.test(world.getBlockState(blockPos));
+                    if (shouldPlace) {
+                        world.setBlockState(pos, findBlock(predicate).getDefaultState());
+                    }
                     //if the block is already in the map, remove it
                     if (shouldPreview) {
                         BlockDisplayElement element = NexusVirtualEntityUtils.createElement(blockPos);
@@ -85,14 +90,9 @@ public class Multiblock  {
                             // if the block is not in the map, add it and make cool
                             ElementHolder holder = NexusVirtualEntityUtils.createHolder(blockPos);
                             HolderAttachment attachment = ChunkAttachment.of(holder, (ServerWorld) world, blockPos);
-                            // TODO: optimize this
-                            for (Block state : Registries.BLOCK) {
-                                BlockState blockState = state.getDefaultState();
-                                if (predicate.test(blockState)) {
-                                    element.setBlockState(blockState);
-                                    break;
-                                }
-                            }
+                            BlockState bstate = findBlock(predicate).getDefaultState();
+                            element.setBlockState(bstate);
+
                             // if the block is not air and is not the right block, make it glow
                             if (!world.getBlockState(blockPos).isAir() && !isRightBlock) {
                                 element.setGlowing(true);
@@ -151,6 +151,17 @@ public class Multiblock  {
                         return pos.add(-j, -i, -k);
                     }
                 }
+            }
+        }
+        return null;
+    }
+
+    private static Block findBlock(Predicate<BlockState> predicate) {
+        // TODO: optimize this
+        for (Block state : Registries.BLOCK) {
+            BlockState blockState = state.getDefaultState();
+            if (predicate.test(blockState)) {
+                return blockState.getBlock();
             }
         }
         return null;

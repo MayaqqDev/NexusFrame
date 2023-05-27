@@ -79,7 +79,7 @@ public class Multiblock  {
                     }
                     //if the block is already in the map, remove it
                     if (shouldPreview) {
-                        BlockDisplayElement element = NexusVirtualEntityUtils.createElement(blockPos);
+                        BlockDisplayElement element = NexusVirtualEntityUtils.createEmptyElement();
                         if (attachments.containsKey(blockPos)) {
                             attachments.get(blockPos).destroy();
                             attachments.remove(blockPos);

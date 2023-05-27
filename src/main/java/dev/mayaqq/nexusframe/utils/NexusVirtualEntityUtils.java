@@ -17,8 +17,12 @@ public class NexusVirtualEntityUtils {
         };
     }
     public static BlockDisplayElement createElement(BlockPos pos) {
-        BlockDisplayElement element = new BlockDisplayElement();
+        BlockDisplayElement element = createEmptyElement();
         element.setBlockState(Multiblock.elements.get(pos).getBlockState());
+        return element;
+    }
+    public static BlockDisplayElement createEmptyElement() {
+        BlockDisplayElement element = new BlockDisplayElement();
         element.setGlowing(false);
         element.setScale(new Vector3f(0.5F, 0.5F, 0.5F));
         element.setOffset(new Vec3d(0.25F, 0.25F, 0.25F));

@@ -4,6 +4,7 @@
   "package": "dev.mayaqq.nexusframe.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AnvilBlockMixin",
     "BlockMixin"
   ],
   "client": [

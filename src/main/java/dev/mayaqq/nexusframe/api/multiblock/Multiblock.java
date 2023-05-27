@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 
 import static dev.mayaqq.nexusframe.NexusFrame.LOGGER;
 
+@SuppressWarnings({"unused"})
 public class Multiblock  {
     private char[][][] pattern;
     private final HashMap<Character, Predicate<BlockState>> predicates;

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "nexus-frame",
+  "id": "nexusframe",
   "version": "${version}",
   "name": "NexusFrame",
   "description": "A server-side libary adding custom Multiblock api with a custom preview!",

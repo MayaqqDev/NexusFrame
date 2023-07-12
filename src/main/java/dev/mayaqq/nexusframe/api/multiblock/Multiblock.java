@@ -1,16 +1,15 @@
 package dev.mayaqq.nexusframe.api.multiblock;
 
+import dev.mayaqq.nexusframe.utils.BlockStatePredicateExtension;
 import dev.mayaqq.nexusframe.utils.NexusVirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
+import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
@@ -20,7 +19,7 @@ import java.util.function.Predicate;
 import static dev.mayaqq.nexusframe.NexusFrame.LOGGER;
 
 @SuppressWarnings({"unused"})
-public class Multiblock  {
+public class Multiblock {
     private char[][][] pattern;
     private final HashMap<Character, Predicate<BlockState>> predicates;
     private final boolean shouldPreview;
@@ -76,7 +75,7 @@ public class Multiblock  {
                     Predicate<BlockState> predicate = predicates.get(pattern[i][j][k]);
                     boolean isRightBlock = predicate.test(world.getBlockState(blockPos));
                     if (shouldPlace) {
-                        world.setBlockState(pos, findBlock(predicate).getDefaultState());
+                        world.setBlockState(pos, ((BlockStatePredicateExtension) predicate).getFirstBlockState());
                     }
                     //if the block is already in the map, remove it
                     if (shouldPreview) {
@@ -91,7 +90,7 @@ public class Multiblock  {
                             // if the block is not in the map, add it and make cool
                             ElementHolder holder = NexusVirtualEntityUtils.createHolder(blockPos);
                             HolderAttachment attachment = ChunkAttachment.of(holder, (ServerWorld) world, blockPos);
-                            BlockState bstate = findBlock(predicate).getDefaultState();
+                            BlockState bstate = ((BlockStatePredicateExtension) predicate).getFirstBlockState();
                             element.setBlockState(bstate);
 
                             // if the block is not air and is not the right block, make it glow
@@ -152,17 +151,6 @@ public class Multiblock  {
                         return pos.add(-j, -i, -k);
                     }
                 }
-            }
-        }
-        return null;
-    }
-
-    private static Block findBlock(Predicate<BlockState> predicate) {
-        // TODO: optimize this
-        for (Block state : Registries.BLOCK) {
-            BlockState blockState = state.getDefaultState();
-            if (predicate.test(blockState)) {
-                return blockState.getBlock();
             }
         }
         return null;

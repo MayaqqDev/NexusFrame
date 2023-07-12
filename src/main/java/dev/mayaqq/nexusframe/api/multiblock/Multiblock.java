@@ -6,13 +6,17 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Oxidizable;
 import net.minecraft.predicate.block.BlockStatePredicate;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Predicate;
 
@@ -29,6 +33,7 @@ public class Multiblock {
     private final int length;
     private boolean previewing;
     private int previewed = 0;
+    private static final ArrayList<BlockState> checkedCache = new ArrayList<>();
 
     public static HashMap<BlockPos, HolderAttachment> attachments = new HashMap<>();
     public static HashMap<BlockPos, BlockDisplayElement> elements = new HashMap<>();
@@ -75,7 +80,7 @@ public class Multiblock {
                     Predicate<BlockState> predicate = predicates.get(pattern[i][j][k]);
                     boolean isRightBlock = predicate.test(world.getBlockState(blockPos));
                     if (shouldPlace) {
-                        world.setBlockState(pos, ((BlockStatePredicateExtension) predicate).getFirstBlockState());
+                        world.setBlockState(pos, getBlockStateFromPredicate(predicate));
                     }
                     //if the block is already in the map, remove it
                     if (shouldPreview) {
@@ -90,7 +95,7 @@ public class Multiblock {
                             // if the block is not in the map, add it and make cool
                             ElementHolder holder = NexusVirtualEntityUtils.createHolder(blockPos);
                             HolderAttachment attachment = ChunkAttachment.of(holder, (ServerWorld) world, blockPos);
-                            BlockState bstate = ((BlockStatePredicateExtension) predicate).getFirstBlockState();
+                            BlockState bstate = getBlockStateFromPredicate(predicate);
                             element.setBlockState(bstate);
 
                             // if the block is not air and is not the right block, make it glow
@@ -150,6 +155,24 @@ public class Multiblock {
                     if (pattern[i][j][k] == '$') {
                         return pos.add(-j, -i, -k);
                     }
+                }
+            }
+        }
+        return null;
+    }
+
+    // Oh god this is so bad, I mean it wont lag once it does the check once, but still...
+    public static BlockState getBlockStateFromPredicate(Predicate<BlockState> predicate) {
+        for (BlockState state : checkedCache) {
+            if (predicate.test(state)) {
+                return state;
+            }
+        }
+        for (Block block : Registries.BLOCK) {
+            for (BlockState state : block.getStateManager().getStates()) {
+                if (predicate.test(state)) {
+                    checkedCache.add(state);
+                    return state;
                 }
             }
         }

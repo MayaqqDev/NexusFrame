@@ -217,13 +217,14 @@ public class Multiblock {
         public void matchCheck(BlockState state) {
             boolean isRightBlock = predicate.test(state);
             if (isRightBlock) {
-                this.getElement().setScale(new Vector3f(0.0F, 0.0F, 0.0F));
+                this.element.setScale(new Vector3f(0.0F, 0.0F, 0.0F));
             } else {
-                this.getElement().setScale(new Vector3f(0.5F, 0.5F, 0.5F));
+                this.element.setScale(new Vector3f(0.5F, 0.5F, 0.5F));
                 if (!state.isAir()) {
-                    this.getElement().setGlowing(true);
+                    this.element.setGlowing(true);
                 }
             }
+            this.element.tick();
         }
 
         private DisplayElement makeElementFromState(BlockState state) {
